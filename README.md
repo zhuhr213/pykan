@@ -42,22 +42,29 @@ Kolmogorov-Arnold Networks (KANs) are promising alternatives of Multi-Layer Perc
 
 
 ## Installation
-There are two ways to install pykan, through pypi or github.
+Pykan can be installed via PyPI or directly from GitHub. 
+
+**Pre-requisites:**
+
+```
+Python 3.9.7 or higher
+pip
+```
 
 **Installation via github**
 
-```python
-git clone https://github.com/KindXiaoming/pykan.git
-cd pykan
-pip install -e .
+```
+python -m venv pykan-env
+source pykan-env/bin/activate  # On Windows use `pykan-env\Scripts\activate`
+pip install git+https://github.com/KindXiaoming/pykan.git
 ```
 
-**Installation via pypi**
-
-```python
+**Installation via PyPI:**
+```
+python -m venv pykan-env
+source pykan-env/bin/activate  # On Windows use `pykan-env\Scripts\activate`
 pip install pykan
 ```
-
 Requirements
 
 ```python
@@ -71,9 +78,19 @@ torch==2.2.2
 tqdm==4.66.2
 ```
 
-To install requirements:
+After activating the virtual environment, you can install specific package requirements as follows:
 ```python
 pip install -r requirements.txt
+```
+
+**Optional: Conda Environment Setup**
+For those who prefer using Conda:
+```
+conda create --name pykan-env python=3.9.7
+conda activate pykan-env
+pip install git+https://github.com/KindXiaoming/pykan.git  # For GitHub installation
+# or
+pip install pykan  # For PyPI installation
 ```
 
 ## Computation requirements
@@ -109,7 +126,7 @@ More Notebook tutorials can be found in [tutorials](tutorials).
 If you have any questions, please contact zmliu@mit.edu
 
 ## Author's note
-I would like to thank everyone who's intereted in KANs. When I designed KANs and wrote codes, I have math & physics examples (which are quite small scale!) in mind, so did not consider much optimization in efficiency or reusability. It's so honored to receive this unwarranted attention, which is way beyond my expectation. So I accept any crticism from people complaning about the efficiency and resuability of the codes, my apology. My only hope is that you find `model.plot()` fun to play with :).
+I would like to thank everyone who's interested in KANs. When I designed KANs and wrote codes, I have math & physics examples (which are quite small scale!) in mind, so did not consider much optimization in efficiency or reusability. It's so honored to receive this unwarranted attention, which is way beyond my expectation. So I accept any criticism from people complaning about the efficiency and resuability of the codes, my apology. My only hope is that you find `model.plot()` fun to play with :).
 
 For users who are interested in scientific discoveries and scientific computing (the orginal users intended for), I'm happy to hear your applications and collaborate. This repo will continue remaining mostly for this purpose, probably without signifiant updates for efficiency. In fact, there are already implmentations like [efficientkan](https://github.com/Blealtan/efficient-kan) or [fouierkan](https://github.com/GistNoesis/FourierKAN/) that look promising for improving efficiency.
 
