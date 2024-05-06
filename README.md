@@ -2,7 +2,7 @@
 
 # Kolmogorov-Arnold Networks (KANs)
 
-This is the github repo for the paper ["KAN: Kolmogorov-Arnold Networks"](https://arxiv.org/abs/2404.19756). Find the documentation [here](https://kindxiaoming.github.io/pykan/). Here's [author's note](https://github.com/KindXiaoming/pykan/blob/master/README.md#authors-note) responding to current hype of KANs.
+This is the github repo for the paper ["KAN: Kolmogorov-Arnold Networks"](https://arxiv.org/abs/2404.19756). Find the documentation [here](https://kindxiaoming.github.io/pykan/). Here's [author's note](https://github.com/KindXiaoming/pykan?tab=readme-ov-file#authors-note) responding to current hype of KANs.
 
 Kolmogorov-Arnold Networks (KANs) are promising alternatives of Multi-Layer Perceptrons (MLPs). KANs have strong mathematical foundations just like MLPs: MLPs are based on the universal approximation theorem, while KANs are based on Kolmogorov-Arnold representation theorem. KANs and MLPs are dual: KANs have activation functions on edges, while MLPs have activation functions on nodes. This simple change makes KANs better (sometimes much better!) than MLPs in terms of both model **accuracy** and **interpretability**. A quick intro of KANs [here](https://kindxiaoming.github.io/pykan/intro.html).
 
@@ -10,6 +10,8 @@ Kolmogorov-Arnold Networks (KANs) are promising alternatives of Multi-Layer Perc
 
 ## Accuracy
 **KANs have faster scaling than MLPs. KANs have better accuracy than MLPs with fewer parameters.**
+
+Please set `torch.set_default_dtype(torch.float64)` if you want high precision.
 
 **Example 1: fitting symbolic formulas**
 <img width="1824" alt="Screenshot 2024-04-30 at 10 55 30" src="https://github.com/KindXiaoming/pykan/assets/23551623/e1fc3dcc-c1f6-49d5-b58e-79ff7b98a49b">
