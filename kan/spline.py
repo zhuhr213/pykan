@@ -97,6 +97,8 @@ def coef2curve(x_eval, grid, coef, k, device="cpu"):
     '''
     # x_eval: (size, batch), grid: (size, grid), coef: (size, coef)
     # coef: (size, coef), B_batch: (size, coef, batch), summer over coef
+    if coef.dtype != x_eval.dtype:
+        coef = coef.to(x_eval.dtype)
     y_eval = torch.einsum('ij,ijk->ik', coef, B_batch(x_eval, grid, k, device=device))
     return y_eval
 
@@ -131,6 +133,6 @@ def curve2coef(x_eval, y_eval, grid, k, device="cpu"):
     torch.Size([5, 13])
     '''
     # x_eval: (size, batch); y_eval: (size, batch); grid: (size, grid); k: scalar
-    mat = B_batch(x_eval, grid, k, device=device).permute(0, 2, 1)
+    mat = B_batch(x_eval, grid, k, device=device).permute(0, 2, 1).to(y_eval.dtype)
     coef = torch.linalg.lstsq(mat.to('cpu'), y_eval.unsqueeze(dim=2).to('cpu')).solution[:, :, 0]  # sometimes 'cuda' version may diverge
     return coef.to(device)

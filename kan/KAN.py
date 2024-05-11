@@ -142,7 +142,7 @@ class KAN(nn.Module):
             self.act_fun.append(sp_batch)
 
             # bias
-            bias = nn.Linear(width[l + 1], 1, bias=False).requires_grad_(bias_trainable)
+            bias = nn.Linear(width[l + 1], 1, bias=False, device=device).requires_grad_(bias_trainable)
             bias.weight.data *= 0.
             self.biases.append(bias)
 
@@ -156,11 +156,13 @@ class KAN(nn.Module):
         ### initializing the symbolic front ###
         self.symbolic_fun = []
         for l in range(self.depth):
-            sb_batch = Symbolic_KANLayer(in_dim=width[l], out_dim=width[l + 1])
+            sb_batch = Symbolic_KANLayer(in_dim=width[l], out_dim=width[l + 1], device=device)
             self.symbolic_fun.append(sb_batch)
 
         self.symbolic_fun = nn.ModuleList(self.symbolic_fun)
         self.symbolic_enabled = symbolic_enabled
+        
+        self.device = device
 
     def initialize_from_another_model(self, another_model, x):
         '''
@@ -188,10 +190,10 @@ class KAN(nn.Module):
         tensor(-0.0030)
         tensor(0.0506)
         '''
-        another_model(x)  # get activations
+        another_model(x.to(another_model.device))  # get activations
         batch = x.shape[0]
 
-        self.initialize_grid_from_another_model(another_model, x)
+        self.initialize_grid_from_another_model(another_model, x.to(another_model.device))
 
         for l in range(self.depth):
             spb = self.act_fun[l]
@@ -200,7 +202,7 @@ class KAN(nn.Module):
             # spb = spb_parent
             preacts = another_model.spline_preacts[l]
             postsplines = another_model.spline_postsplines[l]
-            self.act_fun[l].coef.data = curve2coef(preacts.reshape(batch, spb.size).permute(1, 0), postsplines.reshape(batch, spb.size).permute(1, 0), spb.grid, k=spb.k)
+            self.act_fun[l].coef.data = curve2coef(preacts.reshape(batch, spb.size).permute(1, 0), postsplines.reshape(batch, spb.size).permute(1, 0), spb.grid, k=spb.k, device=self.device)
             spb.scale_base.data = spb_parent.scale_base.data
             spb.scale_sp.data = spb_parent.scale_sp.data
             spb.mask.data = spb_parent.mask.data
@@ -983,7 +985,7 @@ class KAN(nn.Module):
                 if i not in active_neurons[l + 1]:
                     self.remove_node(l + 1, i)
 
-        model2 = KAN(copy.deepcopy(self.width), self.grid, self.k, base_fun=self.base_fun)
+        model2 = KAN(copy.deepcopy(self.width), self.grid, self.k, base_fun=self.base_fun, device=self.device)
         model2.load_state_dict(self.state_dict())
         for i in range(len(self.acts_scale)):
             if i < len(self.acts_scale) - 1:
@@ -1156,7 +1158,7 @@ class KAN(nn.Module):
                         if verbose >= 1:
                             print(f'fixing ({l},{i},{j}) with {name}, r2={r2}')
 
-    def symbolic_formula(self, floating_digit=2, var=None, normalizer=None, simplify=False):
+    def symbolic_formula(self, floating_digit=2, var=None, normalizer=None, simplify=False, output_normalizer = None ):
         '''
         obtain the symbolic formula
         
@@ -1170,6 +1172,8 @@ class KAN(nn.Module):
                 the normalization applied to inputs
             simplify : bool
                 If True, simplify the equation at each step (usually quite slow), so set up False by default.
+            output_normalizer: [mean array (floats), varaince array (floats)]
+                the normalization applied to outputs
             
         Returns:
         --------
@@ -1233,6 +1237,19 @@ class KAN(nn.Module):
 
             x = y
             symbolic_acts.append(x)
+
+        if output_normalizer != None:
+            output_layer = symbolic_acts[-1]
+            means = output_normalizer[0]
+            stds = output_normalizer[1]
+
+            assert len(output_layer) == len(means), 'output_normalizer does not match the output layer'
+            assert len(output_layer) == len(stds), 'output_normalizer does not match the output layer'
+            
+            output_layer = [(output_layer[i] * stds[i] + means[i]) for i in range(len(output_layer))]
+            symbolic_acts[-1] = output_layer
+
+
 
         self.symbolic_acts = [[ex_round(symbolic_acts[l][i]) for i in range(len(symbolic_acts[l]))] for l in range(len(symbolic_acts))]
 
